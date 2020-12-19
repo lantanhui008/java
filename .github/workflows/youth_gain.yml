@@ -1,0 +1,38 @@
+name: 中青看点
+
+on:
+  workflow_dispatch:
+  schedule:
+     - cron: '*/30 7-9 * * *'
+  watch:
+    types: started
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+        YOUTH_START: ${{ secrets.YOUTH_START }}
+        YOUTH_END: ${{ secrets.YOUTH_END }}
+        
+    steps:
+      - name: Checkout
+        run: |
+          git clone https://github.com/Sunert/Scripts.git ~/Scripts
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: npm install
+        if: env.YOUTH_START
+        run: |
+          cd ~/Scripts
+          npm install
+      - name: '运行 【中青看点浏览赚】'
+        if: env.YOUTH_START
+        run: |
+          cd ~/Scripts
+          node Task/youth_gain.js
+        env:
+          PUSH_KEY: ${{ secrets.PUSH_KEY }}
+      
